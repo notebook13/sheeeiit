@@ -24,7 +24,7 @@ html, body {
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 15px;
+    gap: 12px;
     z-index: 10;
   }
 
@@ -38,9 +38,11 @@ html, body {
 }
 
 .social-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
 }
 
 #tyrone-wrapper {
@@ -82,7 +84,6 @@ html, body {
   z-index: 3;
   display: block;
 }
-
 
   .rain-drop {
   position: absolute;
@@ -194,7 +195,7 @@ html, body {
 #bottom-ca-row {
   position: fixed;
   left: 50%;
-  bottom: 32px;
+  bottom: 120px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
@@ -257,32 +258,24 @@ html, body {
 
 #audio-box {
   position: fixed;
-  bottom: 0;
+  bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
   background: #ffffff;
   border: 2px solid #ff0000;
+  border-radius: 10px;
+  padding: 10px 20px;
   z-index: 100;
+  display: flex;
   align-items: center;
   gap: 10px;
 }
 
-#bottom-ca-row {
-  position: fixed;
-  bottom: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-}
-
-#ca-img {
-  width: 240px;
-}
 @media (min-width: 768px) {
   .sticker-link {
     width: 550px;
   }
-}
+  
   #tyrone-wrapper {
     display: flex;
     flex-direction: column;
@@ -297,12 +290,6 @@ html, body {
   #mint-button {
     width: 180px;
     margin-top: 100px;
-  }
-
-  #bottom-ca-row {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
   }
 
   #ca-img {
@@ -327,60 +314,4 @@ html, body {
   .social-link .social-icon {
     width: 100px;
   }
-  .sticker-link {
-    width: 100px;
-    position: fixed;
-    z-index: 10;
-    animation: pulse 1.2s infinite ease-in-out;
-  }
-  
-@media (max-width: 600px) {
-  #tyrone {
-    width: 70vw; /* smaller Tyrone */
-  }
-
-  #mint-button {
-    width: 70px;
-    height: 70px;
-    margin-top: 20px;
-  }
-
-  #ca-img {
-    width: 200px;
-  }
-
-  .social-icon {
-    width: 10px;
-    height: 20px;
-  }
 }
-#social-links {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 12px;
-  z-index: 10;
-}
-
-.social-link {
-  display: block;
-  transition: transform 0.2s ease;
-}
-
-.social-link:hover {
-  transform: scale(1.1);
-}
-
-.social-icon {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  border-radius: 6px;
-  display: block;
-}
-@media (min-width: 768px) {
-  .sticker-link {
-    width: 550px;
-  }
