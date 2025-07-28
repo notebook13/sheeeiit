@@ -22,13 +22,11 @@
     #sticker-left {
       top: 10%;
       left: 8%;
-      --angle: -10deg;
     }
 
     #sticker-right {
       top: 10%;
       right: 8%;
-      --angle: 10deg;
     }
 
     .sticker-link img {
@@ -36,15 +34,48 @@
       height: auto;
       display: block;
       pointer-events: none;
-      transform: rotate(var(--angle));
+    }
+
+    #sticker-left img {
+      transform: rotate(-10deg);
+    }
+
+    #sticker-right img {
+      transform: rotate(10deg);
     }
 
     @keyframes pulse {
       0%, 100% {
-        transform: scale(1) rotate(var(--angle));
+        transform: scale(1);
       }
       50% {
-        transform: scale(1.15) rotate(var(--angle));
+        transform: scale(1.15);
+      }
+    }
+
+    #sticker-left {
+      animation: pulse-left 1.2s infinite ease-in-out;
+    }
+
+    #sticker-right {
+      animation: pulse-right 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-left {
+      0%, 100% {
+        transform: scale(1) rotate(-10deg);
+      }
+      50% {
+        transform: scale(1.15) rotate(-10deg);
+      }
+    }
+
+    @keyframes pulse-right {
+      0%, 100% {
+        transform: scale(1) rotate(10deg);
+      }
+      50% {
+        transform: scale(1.15) rotate(10deg);
       }
     }
 
@@ -88,10 +119,10 @@
 
   <!-- CLICKABLE STICKERS -->
   <a href="run.html" class="sticker-link" id="sticker-left">
-    <img src="images/run.png" alt="TYRONE RUN GAME!" />
+    <img src="images/RUN.png" alt="TYRONE RUN GAME!" />
   </a>
   <a href="ai.html" class="sticker-link" id="sticker-right">
-    <img src="images/ai.png" alt="TYRONE AI" />
+    <img src="images/AI.png" alt="TYRONE AI" />
   </a>
 
   <!-- SOCIALS -->
