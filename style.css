@@ -75,7 +75,7 @@ html, body {
 
 #mint-button {
   position: static;
-  margin-top: 32px;
+  margin-top: 15px;
   margin-bottom: 10px;
   width: 80px;
   height: 80px;
@@ -145,7 +145,7 @@ html, body {
   
 #ca-container {
   position: absolute;
-  top: calc(100% + 120px);
+  top: calc(100% + 140px);
   left: 50%;
   transform: translateX(-50%);
   width: 300px;
@@ -289,7 +289,7 @@ html, body {
 
   #mint-button {
     width: 180px;
-    margin-top: 100px;
+    margin-top: 60px;
   }
 
   #ca-img {
