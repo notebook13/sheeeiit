@@ -293,7 +293,11 @@ html, body {
   }
 
   #ca-img {
-    width: 380px;
+    width: 190px;
+  }
+
+  #bottom-ca-row {
+    bottom: 80px;
   }
 
   #audio-box {
