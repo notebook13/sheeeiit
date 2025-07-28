@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Tyrone Spins</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background: rgb(255, 255, 255);
+      color: #ffffff;
+      font-family: monospace;
+    }
+
+    .sticker-link {
+      position: fixed;
+      width: 120px;
+      z-index: 10;
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    #sticker-left {
+      top: 10%;
+      left: 8%;
+      --angle: -10deg;
+    }
+
+    #sticker-right {
+      top: 10%;
+      right: 8%;
+      --angle: 10deg;
+    }
+
+    .sticker-link img {
+      width: 100%;
+      height: auto;
+      display: block;
+      pointer-events: none;
+      transform: rotate(var(--angle));
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1) rotate(var(--angle));
+      }
+      50% {
+        transform: scale(1.15) rotate(var(--angle));
+      }
+    }
+
+    #audio-box {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 10px 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #audio-button {
+      background: none;
+      color: #ff0000;
+      font-family: monospace;
+      border: 2px solid #ff0000;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-5px); }
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="rain-container"></div>
+
+  <!-- CLICKABLE STICKERS -->
+  <a href="run.html" class="sticker-link" id="sticker-left">
+    <img src="images/run.png" alt="TYRONE RUN GAME!" />
+  </a>
+  <a href="ai.html" class="sticker-link" id="sticker-right">
+    <img src="images/ai.png" alt="TYRONE AI" />
+  </a>
+
+  <!-- SOCIALS -->
+  <div id="social-links">
+    <a href="https://x.com" target="_blank" class="social-link">
+      <img src="images/x.png" alt="X (Twitter)" class="social-icon" />
+    </a>
+    <a href="https://telegram.com" target="_blank" class="social-link">
+      <img src="images/telegram.png" alt="Telegram" class="social-icon" />
+    </a>
+    <a href="https://dexscreener.com" target="_blank" class="social-link">
+      <img src="images/dex.png" alt="DexScreener" class="social-icon" />
+    </a>
+  </div>
+
+  <!-- TYRONE IMAGE -->
+  <div id="tyrone-wrapper">
+    <img id="tyrone" src="images/tyrone.png" alt="Tyrone" />
+    <img id="mint-button" src="images/mint.png" alt="Mint" />
+  </div>
+
+  <!-- COPY ADDRESS SECTION -->
+  <div id="bottom-ca-row">
+    <button id="ca-button" style="background: none; border: none; padding: 0; cursor: pointer;">
+      <img src="images/ca.png" alt="CA" id="ca-img" />
+    </button>
+  </div>
+
+  <!-- COPY CONFIRM -->
+  <div id="copy-popup">Copied!</div>
+
+  <!-- AUDIO BOX -->
+  <div id="audio-box">
+    <button id="audio-button"> A Word from Tyrone</button>
+    <audio id="tyrone-audio" src="sounds/wewuzkangz.mp3"></audio>
+  </div>
+
+  <script>
+    const audioBtn = document.getElementById('audio-button');
+    const audio = document.getElementById('tyrone-audio');
+
+    audioBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        audioBtn.textContent = "🔊 Tyrone Speaking...";
+      } else {
+        audio.pause();
+        audio.currentTime = 0;
+        audioBtn.textContent = "🎙 A Word from Tyrone";
+      }
+    });
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>

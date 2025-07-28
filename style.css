@@ -1,0 +1,386 @@
+/* Add your styles here */
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #fff;
+    height: 100%;
+    width: 100%;
+  }
+  
+  #rain-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    width: 150%;
+    height: 150%;
+    z-index: 1;
+  }
+  
+  #social-links {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 10;
+  }
+
+.social-link {
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.social-link:hover {
+  transform: scale(1.1);
+}
+
+.social-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+}
+
+#tyrone-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+  
+  #tyrone {
+  width: 42.75vw;
+  transition: transform 0.1s linear;
+  transform-style: preserve-3d;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: grab;
+}
+
+#tyrone:active {
+  cursor: grabbing;
+}
+
+#mint-button {
+  position: static;
+  margin-top: 32px;
+  margin-bottom: 10px;
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 3;
+  display: block;
+}
+
+
+  .rain-drop {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  animation: fall linear infinite;
+  opacity: 0.85;
+}
+  
+  @keyframes fall {
+    from {
+      transform: translateY(-100px);
+    }
+    to {
+      transform: translateY(110vh);
+    }
+  }
+  
+@media (max-width: 600px) {
+  #tyrone {
+    width: 50vw; /* smaller Tyrone */
+  }
+
+  #mint-button {
+    width: 70px;
+    height: 70px;
+    margin-top: 20px;
+  }
+
+  #ca-img {
+    width: 200px;
+  }
+
+  .social-icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+  
+@media (min-width: 601px) {
+  #tyrone {
+    width: 40.5vw;
+  }
+}
+  
+#spin-zoom-text {
+  font-size: 0.85rem;
+  color: #888;
+  opacity: 0.7;
+  text-align: center;
+  margin: 8px 0 8px 0;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  user-select: none;
+  pointer-events: none;
+  z-index: 100;
+}
+  
+#ca-container {
+  position: absolute;
+  top: calc(100% + 120px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 9;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  border: none;
+  backdrop-filter: none;
+}
+#ca-title {
+  display: none;
+}
+#ca-content {
+  position: relative;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  font-size: 1.1rem;
+  font-family: monospace;
+  color: #222;
+  pointer-events: none;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+}
+#ca-img {
+  width: 300px;
+  max-width: 300px;
+  display: block;
+  filter: none;
+  border-radius: 0;
+  margin: 0 auto;
+  transform: scale(1.5)
+}
+#copy-ca { display: none !important; }
+
+#bottom-ca-row {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+#bottom-contract-address {
+  font-family: monospace;
+  font-size: 1.1rem;
+  color: #222;
+  background: rgba(0,0,0,0.04);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+#bottom-copy-ca {
+  background: #eee;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#bottom-copy-ca:hover {
+  background: #ddd;
+}
+
+#ca-button {
+  transition: transform 0.15s ease;
+  border-radius: 4px;
+}
+
+#ca-button:hover {
+  transform: scale(1.05);
+}
+
+#ca-button:active {
+  transform: scale(0.95);
+}
+
+#copy-popup {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  user-select: none;
+}
+
+#copy-popup.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#audio-box {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 2px solid #ff0000;
+  z-index: 100;
+  align-items: center;
+  gap: 10px;
+}
+
+#bottom-ca-row {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+#ca-img {
+  width: 240px;
+}
+@media (min-width: 768px) {
+  .sticker-link {
+    width: 550px;
+  }
+}
+  #tyrone-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 60px;
+  }
+
+  #tyrone {
+    width: 880px;
+  }
+
+  #mint-button {
+    width: 180px;
+    margin-top: 100px;
+  }
+
+  #bottom-ca-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+  }
+
+  #ca-img {
+    width: 380px;
+  }
+
+  #audio-box {
+    font-size: 16px;
+    padding: 12px 24px;
+    bottom: 35px;
+  }
+
+  #audio-button {
+    font-size: 16px;
+    padding: 6px 14px;
+  }
+
+  #copy-popup {
+    font-size: 18px;
+  }
+
+  .social-link .social-icon {
+    width: 100px;
+  }
+  .sticker-link {
+    width: 100px;
+    position: fixed;
+    z-index: 10;
+    animation: pulse 1.2s infinite ease-in-out;
+  }
+  
+@media (max-width: 600px) {
+  #tyrone {
+    width: 70vw; /* smaller Tyrone */
+  }
+
+  #mint-button {
+    width: 70px;
+    height: 70px;
+    margin-top: 20px;
+  }
+
+  #ca-img {
+    width: 200px;
+  }
+
+  .social-icon {
+    width: 10px;
+    height: 20px;
+  }
+}
+#social-links {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.social-link {
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.social-link:hover {
+  transform: scale(1.1);
+}
+
+.social-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+}
+@media (min-width: 768px) {
+  .sticker-link {
+    width: 550px;
+  }

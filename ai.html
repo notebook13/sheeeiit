@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TyroneGPT Terminal</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      color: #00ff00;
+      font-family: monospace;
+      font-size: 16px;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #terminal {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    #log-wrapper {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .line::before {
+      content: "> ";
+    }
+
+    #input-wrapper {
+      border-top: 1px solid #00ff00;
+      padding: 10px 20px;
+      background: black;
+    }
+
+    #realInput {
+      width: 100%;
+      background: black;
+      border: none;
+      outline: none;
+      color: #00ff00;
+      font-family: monospace;
+      font-size: 16px;
+    }
+
+    .caret {
+      display: inline-block;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { background: #00ff00; }
+      51%, 100% { background: transparent; }
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal" onclick="focusRealInput()">
+    <div id="log-wrapper">
+      <div id="boot"></div>
+      <div id="log"></div>
+    </div>
+    <div id="input-wrapper">
+      <span>> </span><span id="input-line"></span><span class="caret">&nbsp;</span>
+      <input id="realInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+    </div>
+  </div>
+
+  <script>
+    const terminal = document.getElementById("terminal");
+    const realInput = document.getElementById("realInput");
+    const inputLine = document.getElementById("input-line");
+    const log = document.getElementById("log");
+    const bootDiv = document.getElementById("boot");
+
+    let currentInput = "";
+    let booting = true;
+    let lastResponse = null;
+
+    const bootText = `TYRONE OS v2.7™\nBooting up...\nLoading modules ███████\nInitializing CHICKEN SENSORS...\nConnection established.\n\nType your question and hit Enter.\nType "who dat" to reveal Tyrone.\n─────────────────────────────────────────────\n`;
+
+    const manualResponses = [
+      "SHEEEEIIIIITTT, you wild for askin’ that.",
+      "SHEEEEIIIIITTT, lemme break it down real quick.",
+      "SHEEEEIIIIITTT, ion even know what to say to that.",
+      "SHEEEEIIIIITTT, you really tryna go there, huh?",
+      "SHEEEEIIIIITTT, that’s a whole lotta drama.",
+      "SHEEEEIIIIITTT, gimme a sec to think on that.",
+      "SHEEEEIIIIITTT, I feel you, frfr.",
+      "SHEEEEIIIIITTT, that’s facts on facts.",
+      "SHEEEEIIIIITTT, you better handle that wit care.",
+      "SHEEEEIIIIITTT, not you askin somethin like that!",
+      "SHEEEEIIIIITTT, it really be like that sometimes.",
+      "SHEEEEIIIIITTT, ion got all the answers, but I gotchu.",
+      "SHEEEEIIIIITTT, you movin’ different rn.",
+      "SHEEEEIIIIITTT, we gon’ need a minute for that one.",
+      "SHEEEEIIIIITTT, they playin’ wit you, fr.",
+      "SHEEEEIIIIITTT, keep it a buck, that’s wild.",
+      "SHEEEEIIIIITTT, that’s somethin else right there.",
+      "SHEEEEIIIIITTT, go head wit all that.",
+      "SHEEEEIIIIITTT, ain’t no way you just said that.",
+      "SHEEEEIIIIITTT, this some next level type sh*t.",
+      "SHEEEEIIIIITTT, you better chill before it get real.",
+      "SHEEEEIIIIITTT, you always on some other sh*t.",
+      "SHEEEEIIIIITTT, don’t even trip, I gotchu.",
+      "SHEEEEIIIIITTT, that’s above my paygrade, playa.",
+      "SHEEEEIIIIITTT, you askin the right one.",
+      "SHEEEEIIIIITTT, who told you that?!",
+      "SHEEEEIIIIITTT, I see what you tryna do.",
+      "SHEEEEIIIIITTT, that’s some hood philosophy right there.",
+      "SHEEEEIIIIITTT, nah bruh, that ain’t it.",
+      "SHEEEEIIIIITTT, say less, I’m on it."
+    ];
+
+    function getRandomResponse() {
+      let response;
+      do {
+        response = manualResponses[Math.floor(Math.random() * manualResponses.length)];
+      } while (response === lastResponse);
+      lastResponse = response;
+      return response;
+    }
+
+    function focusRealInput() {
+      realInput.focus();
+    }
+
+    async function typeBootText(text, el, delay = 18) {
+      el.innerHTML = "";
+      let i = 0;
+      function typeChar() {
+        if (i < text.length) {
+          el.innerHTML += text[i] === '\n' ? '<br/>' : text[i];
+          i++;
+          setTimeout(typeChar, delay);
+        } else {
+          booting = false;
+          realInput.focus();
+        }
+      }
+      typeChar();
+    }
+
+    realInput.addEventListener("input", () => {
+      currentInput = realInput.value;
+      inputLine.textContent = currentInput;
+    });
+
+    realInput.addEventListener("keydown", async (e) => {
+      if (booting) return;
+      if (e.key === "Enter") {
+        log.innerHTML += `\n> ${currentInput}`;
+        await handleInput(currentInput.trim().toLowerCase());
+        currentInput = "";
+        realInput.value = "";
+        inputLine.textContent = "";
+        document.getElementById('log-wrapper').scrollTop = document.getElementById('log-wrapper').scrollHeight;
+      }
+    });
+
+    async function handleInput(input) {
+      if (input === "who dat") {
+        log.innerHTML += `\n\nSHHEEEEEEIIITTTT... IT'S TYRONE, BABY. THE REAL ONE.\nTHE AI OUT. TYRONE IN. LEMME COOK.\n`;
+        return;
+      }
+      log.innerHTML += `\n${getRandomResponse()}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      typeBootText(bootText, bootDiv, 18);
+    });
+  </script>
+</body>
+</html>

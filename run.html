@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tyrone Run</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      color: white;
+      font-family: monospace;
+      text-align: center;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    body {
+      min-height: 100dvh;
+    }
+
+    #gameCanvas {
+      background: url('images/oblock.jpg') no-repeat center center;
+      background-size: cover;
+      display: block;
+      width: 100vw;
+      height: 100dvh;
+      touch-action: none;
+      transition: filter 0.2s;
+    }
+
+    .rainbow {
+      animation: rainbowFlash 1s linear infinite;
+    }
+
+    @keyframes rainbowFlash {
+      0% { filter: hue-rotate(0deg); }
+      25% { filter: hue-rotate(90deg); }
+      50% { filter: hue-rotate(180deg); }
+      75% { filter: hue-rotate(270deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    #gameOver {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: blue;
+      border: 2px solid blue;
+      padding: 5vw 10vw;
+      color: white;
+      display: none;
+      font-size: 6vw;
+      z-index: 10;
+    }
+
+    h1 {
+      margin: 2vw 0;
+      font-size: 6vw;
+    }
+
+    #introScreen {
+      position: fixed;
+      z-index: 20;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100dvh;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: black;
+      font-size: 5vw;
+    }
+
+    #distanceCounter {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 15;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 2vw 6vw;
+      border-radius: 2vw;
+      font-size: 7vw;
+      display: none;
+      pointer-events: none;
+    }
+    @media (min-width: 768px) {
+  h1 {
+    font-size: 3vw;
+    margin: 1.5vw 0;
+  }
+
+  #introScreen {
+    font-size: 2.5vw;
+  }
+
+  #introScreen h1 {
+    font-size: 3.5vw !important;
+  }
+
+  #introScreen p {
+    font-size: 2vw !important;
+  }
+
+  #gameOver {
+    font-size: 3vw;
+    padding: 2vw 5vw;
+  }
+
+  #distanceCounter {
+    font-size: 3.5vw;
+    padding: 1vw 3vw;
+    border-radius: 1vw;
+  }
+  .game-started #gameCanvas,
+.game-started #distanceCounter,
+.game-started #gameOver {
+  transform: translateY(-100px);
+}
+
+}
+
+  </style>
+</head>
+<body>
+
+  <div id="introScreen">
+    <div style="max-width:90vw;text-align:center;">
+      <h1 style="font-size:7vw;margin-bottom:2vw;">SHHEEEEEEIIITTTT RUN</h1>
+      <p style="margin-bottom:4vw;">Dodge the child support payments and job applications!<br><br>How far can you run?</p>
+      <p style="font-size:4vw;opacity:0.7;"><br><br><br>Tap or click anywhere to start</p>
+    </div>
+  </div>
+
+  <h1 style="margin: 2vw 0; font-size: 6vw;">SHHEEEEEEIIITTTT RUN</h1>
+  <div id="distanceCounter">Distance: 0m</div>
+  <canvas id="gameCanvas"></canvas>
+  <div id="gameOver">SHHEEEEEEIIITTTT<br><br>Game Over<br><br>Press any key or tap to restart</div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const distanceCounterDiv = document.getElementById('distanceCounter');
+    const bgMusic = new Audio('sounds/Webbie - Independent (Instrumental).mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.6;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function getSizes() {
+      const h = canvas.height;
+      return {
+        groundHeight: Math.max(40, Math.floor(h * 0.13)),
+        tyroneSize: Math.max(50, Math.floor(h * 0.15)),
+        obstacleSize: Math.max(50, Math.floor(h * 0.15)),
+      };
+    }
+
+    let groundHeight = getSizes().groundHeight;
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject();
+        img.src = src;
+      });
+    }
+
+    let tyroneImg, chickenImg, watermelonImg;
+    let started = false;
+    let difficultyMultiplier = 1;
+    let rotationAngle = 0;
+
+    function startGame() {
+      if (started) return;
+      started = true;
+      resetGame();
+      requestAnimationFrame(gameLoop);
+    }
+
+    Promise.all([
+      loadImage('images/tyrone.png').then(img => tyroneImg = img).catch(() => null),
+      loadImage('images/obj1.jpg').then(img => chickenImg = img).catch(() => null),
+      loadImage('images/obj2.jpg').then(img => watermelonImg = img).catch(() => null),
+    ]);
+
+    setTimeout(() => {
+      if (!started && !introActive) startGame();
+    }, 2000);
+
+    const tyrone = {
+      x: 0, y: 0, width: 0, height: 0,
+      velocityY: 0,
+      jumping: false
+    };
+
+    const gravityBase = 1.15;
+    const jumpBase = 32;
+    let obstacles = [];
+    let frame = 0;
+    let score = 0;
+    let distance = 0;
+    let isGameOver = false;
+
+    function drawTyrone() {
+      const centerX = tyrone.x + tyrone.width / 2;
+      const centerY = tyrone.y + tyrone.height / 2;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      if (tyrone.jumping) {
+        rotationAngle += 0.25 * difficultyMultiplier;
+      } else {
+        rotationAngle = 0;
+      }
+      ctx.rotate(rotationAngle);
+      if (tyroneImg) {
+        ctx.drawImage(tyroneImg, -tyrone.width / 2, -tyrone.height / 2, tyrone.width, tyrone.height);
+      } else {
+        ctx.fillStyle = '#00ff00';
+        ctx.fillRect(-tyrone.width / 2, -tyrone.height / 2, tyrone.width, tyrone.height);
+      }
+      ctx.restore();
+    }
+
+    function spawnObstacle() {
+      const { obstacleSize } = getSizes();
+      const width = obstacleSize;
+      const height = obstacleSize;
+      const type = Math.random() < 0.5 ? 'chicken' : 'melon';
+      obstacles.push({
+        x: canvas.width,
+        y: canvas.height - getSizes().groundHeight - height,
+        width,
+        height,
+        type
+      });
+    }
+
+    function drawObstacles() {
+      for (const obs of obstacles) {
+        let img = obs.type === 'chicken' ? chickenImg : watermelonImg;
+        if (img) {
+          ctx.drawImage(img, obs.x, obs.y, obs.width, obs.height);
+        } else {
+          ctx.fillStyle = obs.type === 'chicken' ? 'red' : 'pink';
+          ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        }
+      }
+    }
+
+    function updateObstacles() {
+      const speed = 8 * difficultyMultiplier;
+      for (const obs of obstacles) obs.x -= speed;
+      obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+    }
+
+    function checkCollision() {
+      const shrink = 0.8;
+      const tBox = {
+        x: tyrone.x + tyrone.width * (1 - shrink) / 2,
+        y: tyrone.y + tyrone.height * (1 - shrink) / 2,
+        width: tyrone.width * shrink,
+        height: tyrone.height * shrink
+      };
+      for (const obs of obstacles) {
+        const oBox = {
+          x: obs.x + obs.width * (1 - shrink) / 2,
+          y: obs.y + obs.height * (1 - shrink) / 2,
+          width: obs.width * shrink,
+          height: obs.height * shrink
+        };
+        if (
+          tBox.x < oBox.x + oBox.width &&
+          tBox.x + tBox.width > oBox.x &&
+          tBox.y < oBox.y + oBox.height &&
+          tBox.y + tBox.height > oBox.y
+        ) {
+          gameOver();
+        }
+      }
+    }
+
+    function drawGround() {
+      ctx.fillStyle = '#333';
+      ctx.fillRect(0, canvas.height - getSizes().groundHeight, canvas.width, getSizes().groundHeight);
+    }
+
+    function drawScore() {
+      if (introActive || isGameOver) {
+        distanceCounterDiv.style.display = 'none';
+        return;
+      }
+      distanceCounterDiv.style.display = 'block';
+      distanceCounterDiv.textContent = `Distance: ${distance}m`;
+
+      // 🌈 Add RGB flashing background at 250m
+      if (distance >= 150) {
+        canvas.classList.add('rainbow');
+      } else {
+        canvas.classList.remove('rainbow');
+      }
+    }
+
+    function gameLoop() {
+      if (isGameOver) return;
+
+      difficultyMultiplier = 1 + Math.min(frame / 1800, 3);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawGround();
+      drawTyrone();
+      drawObstacles();
+      drawScore();
+
+      tyrone.y += tyrone.velocityY;
+      tyrone.velocityY += gravityBase * difficultyMultiplier;
+
+      if (tyrone.y >= canvas.height - getSizes().groundHeight - tyrone.height) {
+        tyrone.y = canvas.height - getSizes().groundHeight - tyrone.height;
+        tyrone.jumping = false;
+      }
+
+      if (distance >= 50 && frame % Math.floor(120 / difficultyMultiplier) === 0) spawnObstacle();
+      updateObstacles();
+      checkCollision();
+
+      frame++;
+      score++;
+      if (!isGameOver && !introActive) {
+        distance = Math.floor(frame / 3);
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function jump() {
+      if (!tyrone.jumping) {
+        tyrone.velocityY = -jumpBase * 0.9 * difficultyMultiplier;
+        tyrone.jumping = true;
+      }
+    }
+
+    function gameOver() {
+      isGameOver = true;
+      document.getElementById("gameOver").style.display = "block";
+      distanceCounterDiv.style.display = 'none';
+    }
+
+    function resetGame() {
+      const { tyroneSize, groundHeight: gh } = getSizes();
+      tyrone.width = tyroneSize;
+      tyrone.height = tyroneSize;
+      tyrone.x = Math.floor(canvas.width * 0.06);
+      tyrone.y = canvas.height - gh - tyrone.height;
+      tyrone.velocityY = 0;
+      obstacles = [];
+      score = 0;
+      frame = 0;
+      distance = 0;
+      isGameOver = false;
+      rotationAngle = 0;
+      canvas.classList.remove('rainbow');
+      document.getElementById("gameOver").style.display = "none";
+      distanceCounterDiv.textContent = `Distance: 0m`;
+    }
+
+    document.addEventListener("keydown", () => {
+      if (introActive) return;
+      if (isGameOver) {
+        resetGame();
+        requestAnimationFrame(gameLoop);
+      } else {
+        jump();
+      }
+    });
+
+    document.addEventListener("touchstart", () => {
+      if (introActive) return;
+      if (isGameOver) {
+        resetGame();
+        requestAnimationFrame(gameLoop);
+      } else {
+        jump();
+      }
+    });
+
+    const introScreen = document.getElementById('introScreen');
+    let introActive = true;
+    function hideIntroAndStart() {
+  if (!introActive) return;
+  introActive = false;
+  introScreen.style.display = 'none';
+
+  document.body.classList.add('game-started'); // 💥 Move game up
+
+  bgMusic.play().catch(err => {
+    console.warn("Music blocked by autoplay policy:", err);
+  });
+
+  startGame();
+}
+
+    ['click', 'touchstart', 'mousedown', 'keydown'].forEach(eventType => {
+      introScreen.addEventListener(eventType, hideIntroAndStart);
+      document.addEventListener(eventType, function onAny() {
+        if (introActive) {
+          hideIntroAndStart();
+          document.removeEventListener(eventType, onAny);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
