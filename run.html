@@ -62,6 +62,58 @@
       z-index: 10;
     }
 
+
+
+    /* Game Header Buttons */
+    #gameHeader {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      z-index: 100;
+    }
+
+    .gameButton {
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #ff0000;
+      color: #ff0000;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 14px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .gameButton:hover {
+      background: #ff0000;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .gameButton:active {
+      transform: scale(0.95);
+    }
+
+    @media (max-width: 768px) {
+      #gameHeader {
+        top: 10px;
+        gap: 10px;
+      }
+
+      .gameButton {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+    }
+
     h1 {
       margin: 2vw 0;
       font-size: 6vw;
@@ -133,9 +185,139 @@
 
 }
 
+    /* Leaderboard Modal */
+    #leaderboardModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    #leaderboardContent {
+      background: rgba(0, 0, 0, 0.95);
+      border: 2px solid #ff0000;
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+      color: white;
+      font-family: monospace;
+      position: relative;
+    }
+
+    #leaderboardContent h2 {
+      text-align: center;
+      color: #ff0000;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    .leaderboardTabs {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #333;
+    }
+
+    .leaderboardTab {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #ccc;
+      font-family: monospace;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .leaderboardTab.active {
+      color: #ff0000;
+      border-bottom: 2px solid #ff0000;
+    }
+
+    .leaderboardContent {
+      display: none;
+    }
+
+    .leaderboardContent.active {
+      display: block;
+    }
+
+    .leaderboardEntry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #333;
+      font-size: 14px;
+    }
+
+    .leaderboardEntry:last-child {
+      border-bottom: none;
+    }
+
+    .rank {
+      font-weight: bold;
+      color: #ff0000;
+      min-width: 30px;
+    }
+
+    .playerName {
+      flex: 1;
+      margin: 0 10px;
+    }
+
+    .distance {
+      font-weight: bold;
+      color: #00ff00;
+    }
+
+    .noScores {
+      text-align: center;
+      color: #888;
+      font-style: italic;
+      padding: 20px 0;
+    }
+
+    #closeLeaderboard {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #ff0000;
+      font-size: 24px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+
+    #closeLeaderboard:hover {
+      color: white;
+    }
+
   </style>
 </head>
 <body>
+
+  <!-- GAME HEADER -->
+  <div id="gameHeader">
+    <a href="index.html" class="gameButton">
+      ← Home
+    </a>
+    <button class="gameButton" id="leaderboardButton">
+      🏆 Leaderboard
+    </button>
+  </div>
 
   <div id="introScreen">
     <div style="max-width:90vw;text-align:center;">
@@ -145,10 +327,27 @@
     </div>
   </div>
 
-  <h1 style="margin: 2vw 0; font-size: 6vw;">SHHEEEEEEIIITTTT RUN</h1>
   <div id="distanceCounter">Distance: 0m</div>
   <canvas id="gameCanvas"></canvas>
   <div id="gameOver">SHHEEEEEEIIITTTT<br><br>Game Over<br><br>Press any key or tap to restart</div>
+
+  <!-- LEADERBOARD MODAL -->
+  <div id="leaderboardModal">
+    <div id="leaderboardContent">
+      <button id="closeLeaderboard">×</button>
+      <h2>🏆 LEADERBOARD</h2>
+      <div class="leaderboardTabs">
+        <button class="leaderboardTab active" data-tab="daily">Daily</button>
+        <button class="leaderboardTab" data-tab="alltime">All Time</button>
+      </div>
+      <div id="daily-leaderboard" class="leaderboardContent active">
+        <div class="noScores">No scores yet today!</div>
+      </div>
+      <div id="alltime-leaderboard" class="leaderboardContent">
+        <div class="noScores">No scores yet!</div>
+      </div>
+    </div>
+  </div>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -364,6 +563,91 @@
       isGameOver = true;
       document.getElementById("gameOver").style.display = "block";
       distanceCounterDiv.style.display = 'none';
+      
+      // Save score to leaderboard
+      saveScore(distance);
+    }
+
+    function saveScore(distance) {
+      // Check if this score qualifies for the leaderboard
+      const dailyScores = JSON.parse(localStorage.getItem('dailyScores') || '[]');
+      const allTimeScores = JSON.parse(localStorage.getItem('allTimeScores') || '[]');
+      
+      // Filter daily scores for today
+      const today = new Date().toDateString();
+      const todayScores = dailyScores.filter(score => {
+        const scoreDate = new Date(score.date).toDateString();
+        return scoreDate === today;
+      });
+      
+      // Check if score beats top 10 on daily or all-time
+      const dailyTop10 = todayScores.sort((a, b) => b.distance - a.distance).slice(0, 10);
+      const allTimeTop10 = allTimeScores.sort((a, b) => b.distance - a.distance).slice(0, 10);
+      
+      const beatsDaily = dailyTop10.length < 10 || distance > dailyTop10[dailyTop10.length - 1].distance;
+      const beatsAllTime = allTimeTop10.length < 10 || distance > allTimeTop10[allTimeTop10.length - 1].distance;
+      
+      let playerName = 'Anonymous';
+      
+      // Only prompt for name if score qualifies for leaderboard
+      if (beatsDaily || beatsAllTime) {
+        const promptMessage = `White man caught you gang! You only made it ${distance}m!\n\n`;
+        let leaderboardMessage = '';
+        
+        if (beatsDaily && beatsAllTime) {
+          leaderboardMessage = '🏆 NEW RECORD! You beat both daily and all-time leaderboards!\n\n';
+        } else if (beatsDaily) {
+          leaderboardMessage = '🏆 You made the daily leaderboard!\n\n';
+        } else if (beatsAllTime) {
+          leaderboardMessage = '🏆 You made the all-time leaderboard!\n\n';
+        }
+        
+        const nameInput = prompt(promptMessage + leaderboardMessage + 'Enter your name for the leaderboard:');
+        
+        if (nameInput === null) {
+          // User cancelled, don't save score
+          return;
+        }
+        
+        playerName = nameInput.trim() || 'Anonymous';
+      } else {
+        // Score doesn't qualify, just show game over message
+        alert(`White man caught you gang! You only made it ${distance}m!\n\nBetter luck next time!`);
+        return;
+      }
+      
+      // Save to localStorage for this game session
+      const gameScore = {
+        distance: distance,
+        playerName: playerName,
+        date: new Date().toISOString(),
+        timestamp: Date.now()
+      };
+      
+      // Send score to parent window (if in iframe) or save locally
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'GAME_SCORE',
+          distance: distance,
+          playerName: playerName
+        }, '*');
+      } else {
+        // Save directly to localStorage if not in iframe
+        dailyScores.push(gameScore);
+        allTimeScores.push(gameScore);
+        
+        // Sort and keep top 10
+        dailyScores.sort((a, b) => b.distance - a.distance);
+        allTimeScores.sort((a, b) => b.distance - a.distance);
+        
+        localStorage.setItem('dailyScores', JSON.stringify(dailyScores.slice(0, 10)));
+        localStorage.setItem('allTimeScores', JSON.stringify(allTimeScores.slice(0, 10)));
+      }
+      
+      // Show success message
+      setTimeout(() => {
+        alert(`🏆 Score saved! Check the leaderboard!`);
+      }, 500);
     }
 
     function resetGame() {
@@ -429,6 +713,90 @@
         }
       });
     });
+
+    // Leaderboard functionality
+    const leaderboardModal = document.getElementById('leaderboardModal');
+    const leaderboardButton = document.getElementById('leaderboardButton');
+    const closeLeaderboard = document.getElementById('closeLeaderboard');
+    const leaderboardTabs = document.querySelectorAll('.leaderboardTab');
+    const leaderboardContents = document.querySelectorAll('.leaderboardContent');
+
+    // Open leaderboard
+    leaderboardButton.addEventListener('click', () => {
+      leaderboardModal.style.display = 'flex';
+      updateLeaderboard();
+    });
+
+    // Close leaderboard
+    closeLeaderboard.addEventListener('click', () => {
+      leaderboardModal.style.display = 'none';
+    });
+
+    // Close on background click
+    leaderboardModal.addEventListener('click', (e) => {
+      if (e.target === leaderboardModal) {
+        leaderboardModal.style.display = 'none';
+      }
+    });
+
+    // Tab switching
+    leaderboardTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.getAttribute('data-tab');
+        
+        // Remove active from all tabs and contents
+        leaderboardTabs.forEach(t => t.classList.remove('active'));
+        leaderboardContents.forEach(c => c.classList.remove('active'));
+        
+        // Add active to clicked tab and corresponding content
+        tab.classList.add('active');
+        document.getElementById(`${tabName}-leaderboard`).classList.add('active');
+      });
+    });
+
+    // Update leaderboard display
+    function updateLeaderboard() {
+      const dailyScores = JSON.parse(localStorage.getItem('dailyScores') || '[]');
+      const allTimeScores = JSON.parse(localStorage.getItem('allTimeScores') || '[]');
+      
+      // Filter daily scores for today
+      const today = new Date().toDateString();
+      const todayScores = dailyScores.filter(score => {
+        const scoreDate = new Date(score.date).toDateString();
+        return scoreDate === today;
+      }).sort((a, b) => b.distance - a.distance).slice(0, 10);
+
+      // Sort all-time scores
+      const topAllTimeScores = allTimeScores.sort((a, b) => b.distance - a.distance).slice(0, 10);
+
+      // Update daily leaderboard
+      const dailyContainer = document.getElementById('daily-leaderboard');
+      if (todayScores.length === 0) {
+        dailyContainer.innerHTML = '<div class="noScores">No scores yet today!</div>';
+      } else {
+        dailyContainer.innerHTML = todayScores.map((score, index) => `
+          <div class="leaderboardEntry">
+            <span class="rank">#${index + 1}</span>
+            <span class="playerName">${score.playerName}</span>
+            <span class="distance">${score.distance}m</span>
+          </div>
+        `).join('');
+      }
+
+      // Update all-time leaderboard
+      const allTimeContainer = document.getElementById('alltime-leaderboard');
+      if (topAllTimeScores.length === 0) {
+        allTimeContainer.innerHTML = '<div class="noScores">No scores yet!</div>';
+      } else {
+        allTimeContainer.innerHTML = topAllTimeScores.map((score, index) => `
+          <div class="leaderboardEntry">
+            <span class="rank">#${index + 1}</span>
+            <span class="playerName">${score.playerName}</span>
+            <span class="distance">${score.distance}m</span>
+          </div>
+        `).join('');
+      }
+    }
   </script>
 </body>
 </html>

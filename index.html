@@ -12,6 +12,8 @@
       font-family: monospace;
     }
 
+
+
     .sticker-link {
       position: fixed;
       width: 120px;
@@ -112,10 +114,211 @@
     audio {
       display: none;
     }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+      #leaderboard {
+        left: -280px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 280px;
+        height: auto;
+        max-height: 80vh;
+        padding: 0;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        border-radius: 0 12px 12px 0;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(10px);
+      }
+
+      #leaderboard.expanded {
+        left: 0;
+      }
+
+      #leaderboard h2 {
+        font-size: 16px;
+        margin: 0;
+        padding: 20px 20px 15px 20px;
+        background: linear-gradient(135deg, #ff0000, #ff4444);
+        color: white;
+        font-weight: bold;
+        letter-spacing: 1px;
+        display: none;
+      }
+
+      #leaderboard.expanded h2 {
+        display: block;
+      }
+
+      .leaderboard-tabs {
+        display: none;
+        background: rgba(0,0,0,0.1);
+        margin: 0 20px;
+        border-radius: 8px;
+        padding: 4px;
+      }
+
+      #leaderboard.expanded .leaderboard-tabs {
+        display: flex;
+      }
+
+      .leaderboard-tab {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+
+      .leaderboard-tab.active {
+        background: #ff0000;
+        color: white;
+        box-shadow: 0 2px 4px rgba(255,0,0,0.3);
+      }
+
+      .leaderboard-content {
+        display: none;
+        padding: 15px 20px;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+
+      #leaderboard.expanded .leaderboard-content.active {
+        display: block;
+      }
+
+      .leaderboard-entry {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        font-size: 13px;
+        transition: all 0.2s ease;
+      }
+
+      .leaderboard-entry:last-child {
+        border-bottom: none;
+      }
+
+      .leaderboard-entry:hover {
+        background: rgba(255,255,255,0.05);
+        transform: translateX(5px);
+      }
+
+      .rank {
+        min-width: 30px;
+        font-weight: bold;
+        font-size: 14px;
+        color: #ff0000;
+      }
+
+      .player-name {
+        flex: 1;
+        margin: 0 12px;
+        font-weight: 500;
+      }
+
+      .distance {
+        font-weight: bold;
+        color: #00ff00;
+        font-size: 14px;
+      }
+
+      .no-scores {
+        text-align: center;
+        color: rgba(255,255,255,0.6);
+        font-style: italic;
+        padding: 40px 20px;
+        font-size: 14px;
+      }
+
+      #refresh-leaderboard {
+        display: none;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        backdrop-filter: blur(10px);
+      }
+
+      #leaderboard.expanded #refresh-leaderboard {
+        display: block;
+      }
+
+      /* Collapse/expand button */
+      #leaderboard-toggle {
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #ff0000;
+        color: white;
+        border: none;
+        border-radius: 0 6px 6px 0;
+        width: 20px;
+        height: 50px;
+        cursor: pointer;
+        font-size: 12px;
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 2px 0 6px rgba(0,0,0,0.3);
+        transition: all 0.2s ease;
+        font-weight: bold;
+      }
+
+      #leaderboard-toggle:hover {
+        background: #ff4444;
+        width: 25px;
+      }
+
+      #leaderboard-toggle:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+    }
+
+    /* Ensure leaderboard doesn't interfere with stickers on very small screens */
+    @media (max-width: 480px) {
+      #leaderboard {
+        left: 5px;
+        width: 180px;
+        padding: 8px;
+      }
+
+      #sticker-left {
+        left: 5%;
+      }
+
+      #sticker-right {
+        right: 5%;
+      }
+    }
+
+    /* Desktop sticker sizing - make them 50% bigger */
+    @media (min-width: 769px) {
+      .sticker-link {
+        width: 270px !important; /* 50% bigger than the previous 180px */
+      }
+      
+      #tyrone {
+        width: 440px !important; /* 50% smaller than the default 880px */
+      }
+    }
   </style>
 </head>
 <body>
   <div id="rain-container"></div>
+
+
 
   <!-- CLICKABLE STICKERS -->
   <a href="run.html" class="sticker-link" id="sticker-left">
@@ -130,8 +333,11 @@
     <a href="https://x.com" target="_blank" class="social-link">
       <img src="images/x.png" alt="X (Twitter)" class="social-icon" />
     </a>
-    <a href="https://telegram.com" target="_blank" class="social-link">
-      <img src="images/telegram.png" alt="Telegram" class="social-icon" />
+    <a href="https://magiceden.io" target="_blank" class="social-link">
+      <img src="images/magiceden.png" alt="Magic Eden" class="social-icon" />
+    </a>
+    <a href="https://tensor.trade" target="_blank" class="social-link">
+      <img src="images/Tensor.png" alt="Tensor" class="social-icon" />
     </a>
     <a href="https://dexscreener.com" target="_blank" class="social-link">
       <img src="images/dex.png" alt="DexScreener" class="social-icon" />
@@ -174,6 +380,8 @@
         audioBtn.textContent = "🎙 A Word from Tyrone";
       }
     });
+
+
   </script>
 
   <script src="script.js"></script>

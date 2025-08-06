@@ -60,9 +60,49 @@
       0%, 50% { background: #00ff00; }
       51%, 100% { background: transparent; }
     }
+
+    #backHomeButton {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #00ff00;
+      color: #00ff00;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 16px;
+      z-index: 100;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    #backHomeButton:hover {
+      background: #00ff00;
+      color: black;
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      #backHomeButton {
+        top: 10px;
+        left: 10px;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- BACK HOME BUTTON -->
+  <a href="index.html" id="backHomeButton">
+    ← Back Home
+  </a>
+
   <div id="terminal" onclick="focusRealInput()">
     <div id="log-wrapper">
       <div id="boot"></div>
