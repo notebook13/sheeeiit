@@ -352,7 +352,7 @@
 
   <!-- CONTRACT ADDRESS BUTTON -->
   <div id="bottom-ca-row">
-    <button id="contract-button" style="background: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-family: monospace; font-size: 14px; font-weight: bold;">
+    <button id="contract-button" style="background: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-family: monospace; font-size: 14px; font-weight: bold;" onclick="window.open('https://dexscreener.com/solana/beyd3vrjjtwrtc9lasbkjx23uv23bcjlodfzxdqnvva8', '_blank')">
       CbtYvxogc1rEBATzgZQLHJLtsBpXbRCnfQJqPoXMbonk
     </button>
   </div>
@@ -381,19 +381,11 @@
       }
     });
 
-    // Contract address copy functionality
+    // Contract address redirect functionality
     const contractBtn = document.getElementById('contract-button');
-    const copyPopup = document.getElementById('copy-popup');
-
-    contractBtn.addEventListener('click', () => {
-      const contractAddress = 'CbtYvxogc1rEBATzgZQLHJLtsBpXbRCnfQJqPoXMbonk';
-      navigator.clipboard.writeText(contractAddress).then(() => {
-        copyPopup.style.display = 'block';
-        setTimeout(() => {
-          copyPopup.style.display = 'none';
-        }, 2000);
-      });
-    });
+    
+    // The button now redirects to DexScreener via onclick attribute
+    // No additional JavaScript needed for the redirect
 
   </script>
 

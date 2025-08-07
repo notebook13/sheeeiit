@@ -522,7 +522,7 @@
     function gameLoop() {
       if (isGameOver) return;
 
-      difficultyMultiplier = 1 + Math.min(frame / 1800, 3);
+      difficultyMultiplier = 1 + Math.min(frame / 7200, 0.5);
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -532,14 +532,14 @@
       drawScore();
 
       tyrone.y += tyrone.velocityY;
-      tyrone.velocityY += gravityBase * difficultyMultiplier;
+      tyrone.velocityY += gravityBase * (1 + (difficultyMultiplier - 1) * 0.2);
 
       if (tyrone.y >= canvas.height - getSizes().groundHeight - tyrone.height) {
         tyrone.y = canvas.height - getSizes().groundHeight - tyrone.height;
         tyrone.jumping = false;
       }
 
-      if (distance >= 50 && frame % Math.floor(120 / difficultyMultiplier) === 0) spawnObstacle();
+      if (distance >= 50 && frame % Math.floor(300 / difficultyMultiplier) === 0) spawnObstacle();
       updateObstacles();
       checkCollision();
 
@@ -554,7 +554,7 @@
 
     function jump() {
       if (!tyrone.jumping) {
-        tyrone.velocityY = -jumpBase * 0.9 * difficultyMultiplier;
+        tyrone.velocityY = -jumpBase * 0.9 * (1 + (difficultyMultiplier - 1) * 0.1);
         tyrone.jumping = true;
       }
     }
@@ -568,86 +568,63 @@
       saveScore(distance);
     }
 
-    function saveScore(distance) {
-      // Check if this score qualifies for the leaderboard
-      const dailyScores = JSON.parse(localStorage.getItem('dailyScores') || '[]');
-      const allTimeScores = JSON.parse(localStorage.getItem('allTimeScores') || '[]');
-      
-      // Filter daily scores for today
-      const today = new Date().toDateString();
-      const todayScores = dailyScores.filter(score => {
-        const scoreDate = new Date(score.date).toDateString();
-        return scoreDate === today;
-      });
-      
-      // Check if score beats top 10 on daily or all-time
-      const dailyTop10 = todayScores.sort((a, b) => b.distance - a.distance).slice(0, 10);
-      const allTimeTop10 = allTimeScores.sort((a, b) => b.distance - a.distance).slice(0, 10);
-      
-      const beatsDaily = dailyTop10.length < 10 || distance > dailyTop10[dailyTop10.length - 1].distance;
-      const beatsAllTime = allTimeTop10.length < 10 || distance > allTimeTop10[allTimeTop10.length - 1].distance;
-      
-      let playerName = 'Anonymous';
-      
-      // Only prompt for name if score qualifies for leaderboard
-      if (beatsDaily || beatsAllTime) {
-        const promptMessage = `White man caught you gang! You only made it ${distance}m!\n\n`;
-        let leaderboardMessage = '';
+    async function saveScore(distance) {
+      try {
+        // Check if this score qualifies for the leaderboard using the API
+        const [beatsDaily, beatsAllTime] = await Promise.all([
+          leaderboardAPI.checkScoreQualification(distance, 'daily'),
+          leaderboardAPI.checkScoreQualification(distance, 'alltime')
+        ]);
         
-        if (beatsDaily && beatsAllTime) {
-          leaderboardMessage = '🏆 NEW RECORD! You beat both daily and all-time leaderboards!\n\n';
-        } else if (beatsDaily) {
-          leaderboardMessage = '🏆 You made the daily leaderboard!\n\n';
-        } else if (beatsAllTime) {
-          leaderboardMessage = '🏆 You made the all-time leaderboard!\n\n';
-        }
+        let playerName = 'Anonymous';
         
-        const nameInput = prompt(promptMessage + leaderboardMessage + 'Enter your name for the leaderboard:');
-        
-        if (nameInput === null) {
-          // User cancelled, don't save score
+        // Only prompt for name if score qualifies for leaderboard
+        if (beatsDaily || beatsAllTime) {
+          const promptMessage = `White man caught you gang! You only made it ${distance}m!\n\n`;
+          let leaderboardMessage = '';
+          
+          if (beatsDaily && beatsAllTime) {
+            leaderboardMessage = '🏆 NEW RECORD! You beat both daily and all-time leaderboards!\n\n';
+          } else if (beatsDaily) {
+            leaderboardMessage = '🏆 You made the daily leaderboard!\n\n';
+          } else if (beatsAllTime) {
+            leaderboardMessage = '🏆 You made the all-time leaderboard!\n\n';
+          }
+          
+          const nameInput = prompt(promptMessage + leaderboardMessage + 'Enter your name for the leaderboard:');
+          
+          if (nameInput === null) {
+            // User cancelled, don't save score
+            return;
+          }
+          
+          playerName = nameInput.trim() || 'Anonymous';
+        } else {
+          // Score doesn't qualify, just show game over message
+          alert(`White man caught you gang! You only made it ${distance}m!\n\nBetter luck next time!`);
           return;
         }
         
-        playerName = nameInput.trim() || 'Anonymous';
-      } else {
-        // Score doesn't qualify, just show game over message
-        alert(`White man caught you gang! You only made it ${distance}m!\n\nBetter luck next time!`);
-        return;
-      }
-      
-      // Save to localStorage for this game session
-      const gameScore = {
-        distance: distance,
-        playerName: playerName,
-        date: new Date().toISOString(),
-        timestamp: Date.now()
-      };
-      
-      // Send score to parent window (if in iframe) or save locally
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({
-          type: 'GAME_SCORE',
+        // Submit score to the real leaderboard API
+        const result = await leaderboardAPI.submitScore({
           distance: distance,
-          playerName: playerName
-        }, '*');
-      } else {
-        // Save directly to localStorage if not in iframe
-        dailyScores.push(gameScore);
-        allTimeScores.push(gameScore);
+          playerName: playerName,
+          type: 'alltime'
+        });
         
-        // Sort and keep top 10
-        dailyScores.sort((a, b) => b.distance - a.distance);
-        allTimeScores.sort((a, b) => b.distance - a.distance);
+        if (result.success) {
+          // Show success message
+          setTimeout(() => {
+            alert(`🏆 Score saved to global leaderboard! Check the leaderboard!`);
+          }, 500);
+        } else {
+          alert('Failed to save score to leaderboard. Please try again.');
+        }
         
-        localStorage.setItem('dailyScores', JSON.stringify(dailyScores.slice(0, 10)));
-        localStorage.setItem('allTimeScores', JSON.stringify(allTimeScores.slice(0, 10)));
+      } catch (error) {
+        console.error('Error saving score:', error);
+        alert('Error saving score. Please try again.');
       }
-      
-      // Show success message
-      setTimeout(() => {
-        alert(`🏆 Score saved! Check the leaderboard!`);
-      }, 500);
     }
 
     function resetGame() {
@@ -755,48 +732,53 @@
     });
 
     // Update leaderboard display
-    function updateLeaderboard() {
-      const dailyScores = JSON.parse(localStorage.getItem('dailyScores') || '[]');
-      const allTimeScores = JSON.parse(localStorage.getItem('allTimeScores') || '[]');
-      
-      // Filter daily scores for today
-      const today = new Date().toDateString();
-      const todayScores = dailyScores.filter(score => {
-        const scoreDate = new Date(score.date).toDateString();
-        return scoreDate === today;
-      }).sort((a, b) => b.distance - a.distance).slice(0, 10);
+    async function updateLeaderboard() {
+      try {
+        // Show loading state
+        const dailyContainer = document.getElementById('daily-leaderboard');
+        const allTimeContainer = document.getElementById('alltime-leaderboard');
+        
+        dailyContainer.innerHTML = '<div class="noScores">Loading...</div>';
+        allTimeContainer.innerHTML = '<div class="noScores">Loading...</div>';
+        
+        // Fetch real leaderboard data
+        const [dailyScores, allTimeScores] = await Promise.all([
+          leaderboardAPI.getDailyLeaderboard(),
+          leaderboardAPI.getLeaderboard('alltime')
+        ]);
 
-      // Sort all-time scores
-      const topAllTimeScores = allTimeScores.sort((a, b) => b.distance - a.distance).slice(0, 10);
+        // Update daily leaderboard
+        if (dailyScores.length === 0) {
+          dailyContainer.innerHTML = '<div class="noScores">No scores yet today!</div>';
+        } else {
+          dailyContainer.innerHTML = dailyScores.map((score, index) => `
+            <div class="leaderboardEntry">
+              <span class="rank">#${index + 1}</span>
+              <span class="playerName">${score.playerName}</span>
+              <span class="distance">${score.distance}m</span>
+            </div>
+          `).join('');
+        }
 
-      // Update daily leaderboard
-      const dailyContainer = document.getElementById('daily-leaderboard');
-      if (todayScores.length === 0) {
-        dailyContainer.innerHTML = '<div class="noScores">No scores yet today!</div>';
-      } else {
-        dailyContainer.innerHTML = todayScores.map((score, index) => `
-          <div class="leaderboardEntry">
-            <span class="rank">#${index + 1}</span>
-            <span class="playerName">${score.playerName}</span>
-            <span class="distance">${score.distance}m</span>
-          </div>
-        `).join('');
-      }
-
-      // Update all-time leaderboard
-      const allTimeContainer = document.getElementById('alltime-leaderboard');
-      if (topAllTimeScores.length === 0) {
-        allTimeContainer.innerHTML = '<div class="noScores">No scores yet!</div>';
-      } else {
-        allTimeContainer.innerHTML = topAllTimeScores.map((score, index) => `
-          <div class="leaderboardEntry">
-            <span class="rank">#${index + 1}</span>
-            <span class="playerName">${score.playerName}</span>
-            <span class="distance">${score.distance}m</span>
-          </div>
-        `).join('');
+        // Update all-time leaderboard
+        if (allTimeScores.length === 0) {
+          allTimeContainer.innerHTML = '<div class="noScores">No scores yet!</div>';
+        } else {
+          allTimeContainer.innerHTML = allTimeScores.map((score, index) => `
+            <div class="leaderboardEntry">
+              <span class="rank">#${index + 1}</span>
+              <span class="playerName">${score.playerName}</span>
+              <span class="distance">${score.distance}m</span>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Error updating leaderboard:', error);
+        dailyContainer.innerHTML = '<div class="noScores">Error loading leaderboard</div>';
+        allTimeContainer.innerHTML = '<div class="noScores">Error loading leaderboard</div>';
       }
     }
   </script>
+  <script src="leaderboard-api.js"></script>
 </body>
 </html>
